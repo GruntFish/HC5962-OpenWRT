@@ -18,11 +18,8 @@ cd package
 git clone https://github.com/lwb1978/openwrt-gecoosac
 
 
-cd &&  cd immortalwrt/feeds/packages/net/ 
-rm -rf smartdns
-git clone https://github.com/pymumu/openwrt-smartdns smartdns/
+rm -rf ./feeds/packages/net/smartdns
+git clone https://github.com/pymumu/openwrt-smartdns ./feeds/packages/net/smartdns/
 
-cd &&  cd immortalwrt/feeds/luci/applications/
-rm -rf luci-app-smartdns
-git clone https://github.com/pymumu/luci-app-smartdns 
-cd
+rm -rf ./feeds/luci/applications/luci-app-smartdns
+git clone https://github.com/pymumu/luci-app-smartdns  ./feeds/luci/applications/luci-app-smartdns
