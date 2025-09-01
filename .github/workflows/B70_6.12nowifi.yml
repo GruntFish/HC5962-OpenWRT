@@ -99,40 +99,31 @@ jobs:
         mixkey: 'openwrt6-cortexa53-znm2'
         prefix: ${{ github.workspace }}/openwrt
 
-    - name: Load custom feeds
+    - name: Apply custom feeds configuration
       run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+          [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+
+    - name: Update all feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Apply custom package modifications
+      run: |
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
-   
-    - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
 
-    - name: Install feeds
+    - name: Install all feeds
       run: cd openwrt && ./scripts/feeds install -a
-
-    - name: Delete passwall in feeds
-      run: |
-        cd openwrt
-        rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,dns2socks,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-libev,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,geoview,shadow-tls}
-        rm -rf package/libs/shadowsocks-libev
-        git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
-       
-        rm -rf feeds/luci/applications/luci-app-passwall
-        git clone https://github.com/xiaorouji/openwrt-passwall package/passwall-luci
-
-        rm -rf feeds/packages/lang/golang
-        git clone https://github.com/sbwml/packages_lang_golang -b 25.x feeds/packages/lang/golang
-
 
     - name: Load custom configuration
       run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
+          echo "Loading custom configuration..."
+          [ -e files ] && mv files openwrt/files && echo "Custom files applied"
+          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config && echo "Custom config applied"
+          chmod +x $DIY_P2_SH
+          cd openwrt
+          $GITHUB_WORKSPACE/$DIY_P2_SH
+          echo "Custom configuration loaded successfully"
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
