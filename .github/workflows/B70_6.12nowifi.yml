@@ -196,15 +196,12 @@ jobs:
         touch release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
