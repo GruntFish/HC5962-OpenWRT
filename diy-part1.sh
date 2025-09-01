@@ -14,6 +14,10 @@
 
 # sed -i 's/KERNEL_PATCHVER:=6.12/KERNEL_PATCHVER:=6.6/' target/linux/qualcommax/Makefile
 
-echo 'src-git gecoosac https://github.com/lwb1978/openwrt-gecoosac' >> feeds.conf.default
-echo 'src-git smartdns https://github.com/pymumu/openwrt-smartdns' >> feeds.conf.default
-echo 'src-git luci_smartdns https://github.com/pymumu/luci-app-smartdns' >> feeds.conf.defau
+git clone https://github.com/lwb1978/openwrt-gecoosac ./package/openwrt-gecoosac
+
+rm -rf ./feeds/packages/net/smartdns
+git clone https://github.com/pymumu/openwrt-smartdns ./feeds/packages/net/smartdns/
+
+rm -rf ./feeds/luci/applications/luci-app-smartdns
+git clone https://github.com/pymumu/luci-app-smartdns  ./feeds/luci/applications/luci-app-smartdns
