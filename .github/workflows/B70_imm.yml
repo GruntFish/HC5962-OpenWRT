@@ -80,23 +80,20 @@ jobs:
           python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
           texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
         
-        sudo apt install -y libdeflate-dev libdeflate-tools zlib1g-dev
-        sudo apt install -y liblzma-dev liblz4-dev libzstd-dev
-        sudo apt install -y libboost-all-dev libwayland-dev libgraphene-dev libmesa-dev
-        sudo apt install -y gzip flock findutils tar xz-utils
-        
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
         
-        which gzip
-        which flock
-        which libdeflate-gzip || echo "libdeflate-gzip not found, will use system gzip"
-
+    - name: Fix libdeflate-gzip missing
+      run: |
+        # 确保系统有libdeflate-gzip
         sudo ln -sf /usr/bin/gzip /usr/bin/libdeflate-gzip 2>/dev/null || true
-
+        # 验证
+        which libdeflate-gzip
+        libdeflate-gzip --version
+        
     - name: Clone source code
       working-directory: /workdir
       run: |
