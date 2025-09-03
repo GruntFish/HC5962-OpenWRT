@@ -1,14 +1,5 @@
-#
-# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
-#
-# This is free software, licensed under the MIT License.
-# See /LICENSE for more information.
-#
-# https://github.com/P3TERX/Actions-OpenWrt
-# Description: Build OpenWrt using GitHub Actions
-#
 
-name: ipq6000_6.12
+name: B70_imm
 
 on:
   repository_dispatch:
@@ -26,9 +17,9 @@ env:
   REPO_URL: https://github.com/Glunefish/immortalwrt
   REPO_BRANCH: main
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: ./config/ipq6000-6.12.config
-  DIY_P1_SH: ./scripts/diy-part1.sh
-  DIY_P2_SH: ./scripts/diy-part2.sh
+  CONFIG_FILE: B70_imm.config
+  DIY_P1_SH: imm-diy-part1.sh
+  DIY_P2_SH: imm-diy-part2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -79,13 +70,12 @@ jobs:
           nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply \
           python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
           texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-        
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        
+
     - name: Clone source code
       working-directory: /workdir
       run: |
@@ -106,7 +96,6 @@ jobs:
         echo "Looking for FEEDS_CONF: $FEEDS_CONF"
         ls -la || true
         ls -la openwrt/ || true
-    
         if [ -e "$FEEDS_CONF" ]; then
           echo "Moving custom feeds configuration..."
           mv "$FEEDS_CONF" openwrt/feeds.conf.default
@@ -128,22 +117,15 @@ jobs:
 
     - name: Load custom configuration
       run: |
-          echo "Loading custom configuration..."
-          [ -e files ] && mv files openwrt/files && echo "Custom files applied"
-          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config && echo "Custom config applied"
-          chmod +x $DIY_P2_SH
-          cd openwrt
-          $GITHUB_WORKSPACE/$DIY_P2_SH
-          echo "Custom configuration loaded successfully"
+        echo "Loading custom configuration..."
+        [ -e files ] && mv files openwrt/files && echo "Custom files applied"
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config && echo "Custom config applied"
+        chmod +x $DIY_P2_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P2_SH
+        echo "Custom configuration loaded successfully"
 
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
-      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-      env:
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-     - name: Fix libdeflate-gzip missing
+    - name: Fix libdeflate-gzip missing
       run: |
         # 确保系统有libdeflate-gzip
         sudo ln -sf /usr/bin/gzip /usr/bin/libdeflate-gzip 2>/dev/null || true
@@ -158,7 +140,6 @@ jobs:
         echo "Fixing missing musl toolchain files..."
         make -j1 V=s toolchain/musl/compile
         make -j1 V=s toolchain/musl/install
-        
         # 验证修复
         ls -la staging_dir/toolchain-*/lib/ld-musl* && echo "✅ Toolchain fixed"
 
@@ -166,22 +147,26 @@ jobs:
       run: |
         cd openwrt
         echo "Cleaning toolchain build files to free space..."
-        
         # 删除工具链编译中间文件（保留最终工具链）
         rm -rf build_dir/toolchain-*
         rm -rf build_dir/hostpkg/musl-*
         rm -rf build_dir/hostpkg/binutils-*
         rm -rf build_dir/hostpkg/gcc-*
-        
         # 删除临时文件
         rm -rf tmp/.toolchain*
-        
         # 查看清理后的空间
         echo "Space after cleaning:"
         df -h
         du -sh . | cut -f1
 
-   - name: Download package
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+    - name: Download package
       id: package
       run: |
         cd openwrt
@@ -200,7 +185,7 @@ jobs:
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-        
+
     - name: Check space usage
       if: (!cancelled())
       run: df -hT
