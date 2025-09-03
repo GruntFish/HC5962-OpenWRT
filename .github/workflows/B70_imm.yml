@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: ipq6000_6.12
+name: B70-6.12
 
 on:
   repository_dispatch:
