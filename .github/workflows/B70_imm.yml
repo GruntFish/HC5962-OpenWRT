@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: B70-imm
+name: ipq6000_6.12
 
 on:
   repository_dispatch:
@@ -101,13 +101,6 @@ jobs:
 
     - name: Apply custom feeds configuration
       run: |
-          [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-
-    - name: Update all feeds
-      run: cd openwrt && ./scripts/feeds update -a
-
-    - name: Apply custom feeds configuration
-      run: |
         echo "Current working directory: $(pwd)"
         echo "Looking for FEEDS_CONF: $FEEDS_CONF"
         ls -la || true
@@ -119,6 +112,15 @@ jobs:
         else
           echo "Custom feeds configuration not found, using default."
         fi
+
+    - name: Update all feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Apply custom package modifications
+      run: |
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
 
     - name: Install all feeds
       run: cd openwrt && ./scripts/feeds install -a
