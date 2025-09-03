@@ -79,11 +79,23 @@ jobs:
           nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply \
           python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
           texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        
+        sudo apt install -y libdeflate-dev libdeflate-tools zlib1g-dev
+        sudo apt install -y liblzma-dev liblz4-dev libzstd-dev
+        sudo apt install -y libboost-all-dev libwayland-dev libgraphene-dev libmesa-dev
+        sudo apt install -y gzip flock findutils tar xz-utils
+        
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
+        
+        which gzip
+        which flock
+        which libdeflate-gzip || echo "libdeflate-gzip not found, will use system gzip"
+
+        sudo ln -sf /usr/bin/gzip /usr/bin/libdeflate-gzip 2>/dev/null || true
 
     - name: Clone source code
       working-directory: /workdir
