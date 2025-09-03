@@ -106,11 +106,19 @@ jobs:
     - name: Update all feeds
       run: cd openwrt && ./scripts/feeds update -a
 
-    - name: Apply custom package modifications
+    - name: Apply custom feeds configuration
       run: |
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH
+        echo "Current working directory: $(pwd)"
+        echo "Looking for FEEDS_CONF: $FEEDS_CONF"
+        ls -la || true
+        ls -la openwrt/ || true
+    
+        if [ -e "$FEEDS_CONF" ]; then
+          echo "Moving custom feeds configuration..."
+          mv "$FEEDS_CONF" openwrt/feeds.conf.default
+        else
+          echo "Custom feeds configuration not found, using default."
+        fi
 
     - name: Install all feeds
       run: cd openwrt && ./scripts/feeds install -a
