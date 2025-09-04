@@ -46,7 +46,10 @@ jobs:
         sudo apt-get remove -y '^mongodb-.*'
         sudo apt-get remove -y '^mysql-.*'
         sudo apt-get remove -y azure-cli google-cloud-sdk google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri
+        sudo apt-get remove -y nodejs
         sudo apt-get autoremove -y
+        curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash - 
+        sudo apt-get install -y nodejs
         sudo apt-get clean
         df -h
         echo "Removing large directories"
@@ -122,11 +125,23 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P2_SH
         echo "Custom configuration loaded successfully"
 
+    - name: Fix libdeflate-gzip missing
+      run: |
+        # 确保系统有libdeflate-gzip
+        sudo ln -sf /usr/bin/gzip /usr/bin/libdeflate-gzip 2>/dev/null || true
+        # 验证
+        which libdeflate-gzip
+        libdeflate-gzip --version
+
     - name: Fix missing toolchain files
       run: |
         cd openwrt
+        # 只重新编译缺失的musl部分
         echo "Fixing missing musl toolchain files..."
-        make -j1 V=s toolchain/install
+        make -j1 V=s toolchain/musl/compile
+        make -j1 V=s toolchain/musl/install
+        # 验证修复
+        ls -la staging_dir/toolchain-*/lib/ld-musl* && echo "✅ Toolchain fixed"
 
     - name: Clean toolchain build files
       run: |
