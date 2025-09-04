@@ -1,5 +1,5 @@
 
-name: B70_imm
+name: B70_istore
 
 on:
   repository_dispatch:
@@ -14,12 +14,12 @@ on:
     - cron: 0 8 * * 1
 
 env:
-  REPO_URL: https://github.com/Glunefish/immortalwrt
+  REPO_URL: https://github.com/istoreos/istoreos/tree/openwrt-23.05
   REPO_BRANCH: main
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: B70_imm.config
-  DIY_P1_SH: imm-diy-part1.sh
-  DIY_P2_SH: imm-diy-part2.sh
+  CONFIG_FILE: B70_istore.config
+  DIY_P1_SH: ist-diy-part1.sh
+  DIY_P2_SH: ist-diy-part2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
