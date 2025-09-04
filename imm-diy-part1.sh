@@ -15,3 +15,4 @@
 # sed -i 's/KERNEL_PATCHVER:=6.12/KERNEL_PATCHVER:=6.6/' target/linux/qualcommax/Makefile
 
 git clone https://github.com/lwb1978/openwrt-gecoosac ./package/openwrt-gecoosac
+git clone https://github.com/w9315273/luci-app-adguardhome ./package/luci-app-adguardhome
