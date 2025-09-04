@@ -125,40 +125,6 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P2_SH
         echo "Custom configuration loaded successfully"
 
-    - name: Fix libdeflate-gzip missing
-      run: |
-        # 确保系统有libdeflate-gzip
-        sudo ln -sf /usr/bin/gzip /usr/bin/libdeflate-gzip 2>/dev/null || true
-        # 验证
-        which libdeflate-gzip
-        libdeflate-gzip --version
-
-    - name: Fix missing toolchain files
-      run: |
-        cd openwrt
-        # 只重新编译缺失的musl部分
-        echo "Fixing missing musl toolchain files..."
-        make -j1 V=s toolchain/musl/compile
-        make -j1 V=s toolchain/musl/install
-        # 验证修复
-        ls -la staging_dir/toolchain-*/lib/ld-musl* && echo "✅ Toolchain fixed"
-
-    - name: Clean toolchain build files
-      run: |
-        cd openwrt
-        echo "Cleaning toolchain build files to free space..."
-        # 删除工具链编译中间文件（保留最终工具链）
-        rm -rf build_dir/toolchain-*
-        rm -rf build_dir/hostpkg/musl-*
-        rm -rf build_dir/hostpkg/binutils-*
-        rm -rf build_dir/hostpkg/gcc-*
-        # 删除临时文件
-        rm -rf tmp/.toolchain*
-        # 查看清理后的空间
-        echo "Space after cleaning:"
-        df -h
-        du -sh . | cut -f1
-
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
