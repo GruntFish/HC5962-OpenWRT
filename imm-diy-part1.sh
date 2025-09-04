@@ -15,9 +15,3 @@
 # sed -i 's/KERNEL_PATCHVER:=6.12/KERNEL_PATCHVER:=6.6/' target/linux/qualcommax/Makefile
 
 git clone https://github.com/lwb1978/openwrt-gecoosac ./package/openwrt-gecoosac
-
-rm -rf ./feeds/packages/net/smartdns
-git clone https://github.com/pymumu/openwrt-smartdns ./feeds/packages/net/smartdns/
-
-rm -rf ./feeds/luci/applications/luci-app-smartdns
-git clone https://github.com/pymumu/luci-app-smartdns  ./feeds/luci/applications/luci-app-smartdns
